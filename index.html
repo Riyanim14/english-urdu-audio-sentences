@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English-Urdu Sentences with Audio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .filter-section {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-section select, .filter-section input {
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .filter-section select:focus, .filter-section input:focus {
+            border-color: #667eea;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        th, td {
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .sentence-cell {
+            font-weight: 500;
+            max-width: 300px;
+        }
+        
+        .urdu-text {
+            font-family: 'Noto Nastaliq Urdu', serif;
+            font-size: 16px;
+            direction: rtl;
+            text-align: right;
+        }
+        
+        .english-text {
+            font-size: 15px;
+        }
+        
+        .language-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .language-tag.english {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .language-tag.urdu {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        
+        .audio-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .audio-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: background-color 0.3s;
+            min-width: 40px;
+        }
+        
+        .audio-btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .audio-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .audio-btn.playing {
+            background: #28a745;
+        }
+        
+        .audio-player {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            th, td {
+                padding: 10px 8px;
+                font-size: 14px;
+            }
+            
+            .audio-controls {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .audio-btn {
+                width: 100%;
+            }
+        }
+        
+        .search-highlight {
+            background-color: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .audio-cell {
+            min-width: 120px;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>English-Urdu Sentences with Audio</h1>
+            <p>A comprehensive collection of sentences with translations and audio recordings</p>
+        </div>
+        
+        <div class="content">
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-entries"></div>
+                    <div class="stat-label">Total Entries</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number"></div>
+                    <div class="stat-label">Sentences</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number"></div>
+                    <div class="stat-label">Audio Recordings</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number"></div>
+                    <div class="stat-label">Languages</div>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <select id="language-filter">
+                    <option value="">All Languages</option>
+                    <option value="English">English</option>
+                    <option value="Urdu">Urdu</option>
+                </select>
+                
+                <input type="text" id="search-input" placeholder="Search sentences...">
+            </div>
+            
+            <div class="table-container">
+                <table id="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>English Sentence</th>
+                            <th>Urdu Sentence</th>
+                            <th>Audio</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        let filteredData = [...audioSentenceData];
+        let currentAudio = null;
+
+        function playAudio(audioFile, button) {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                document.querySelectorAll('.audio-btn').forEach(btn => {
+                    btn.classList.remove('playing');
+                    btn.textContent = btn.textContent.replace('⏸', '▶');
+                });
+            }
+
+            currentAudio = new Audio(audioFile);
+            button.classList.add('playing');
+            button.textContent = button.textContent.replace('▶', '⏸');
+            
+            currentAudio.play().catch(error => {
+                console.error('Error playing audio:', error);
+                button.textContent = '❌';
+                button.disabled = true;
+            });
+            
+            currentAudio.addEventListener('ended', () => {
+                button.classList.remove('playing');
+                button.textContent = button.textContent.replace('⏸', '▶');
+                currentAudio = null;
+            });
+        }
+
+        function renderTable(dataToRender = filteredData) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            
+            dataToRender.forEach(row => {
+                const tr = document.createElement('tr');
+                
+                tr.innerHTML = `
+                    <td>${row.id}</td>
+                    <td class="sentence-cell english-text">${row.english}</td>
+                    <td class="sentence-cell urdu-text">${row.urdu}</td>
+                    <td class="audio-cell">
+                        <div class="audio-controls">
+                            <audio controls>
+                                <source src="${row.audio}" type="audio/mp3">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+            
+            document.getElementById('total-entries').textContent = dataToRender.length;
+            document.querySelector('.stats .stat-card:nth-child(2) .stat-number').textContent = dataToRender.length;
+            document.querySelector('.stats .stat-card:nth-child(3) .stat-number').textContent = dataToRender.length;
+            document.querySelector('.stats .stat-card:nth-child(4) .stat-number').textContent = 2; // English and Urdu
+        }
+
+        function filterData() {
+            const languageFilter = document.getElementById('language-filter').value;
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            
+            filteredData = audioSentenceData.filter(row => {
+                const matchesEnglish = row.english.toLowerCase().includes(searchTerm);
+                const matchesUrdu = row.urdu.toLowerCase().includes(searchTerm);
+
+                if (languageFilter === 'English') {
+                    return matchesEnglish;
+                } else if (languageFilter === 'Urdu') {
+                    return matchesUrdu;
+                } else {
+                    return matchesEnglish || matchesUrdu;
+                }
+            });
+            
+            renderTable(filteredData);
+        }
+
+        document.getElementById('language-filter').addEventListener('change', filterData);
+        document.getElementById('search-input').addEventListener('input', filterData);
+
+        renderTable();
+    </script>
+</body>
+</html>
+
